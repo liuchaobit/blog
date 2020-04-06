@@ -2,7 +2,7 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
     <id>http://www.liuchaos.cn/Blog/</id>
     <title>ChaosTech</title>
-    <updated>2020-04-06T02:48:38.357Z</updated>
+    <updated>2020-04-06T02:48:52.034Z</updated>
     <generator>https://github.com/jpmonette/feed</generator>
     <link rel="alternate" href="http://www.liuchaos.cn/Blog/"/>
     <link rel="self" href="http://www.liuchaos.cn/Blog/atom.xml"/>
@@ -77,6 +77,79 @@ svgexport 是一个svg转png的工具，现在版本是0.4.0<br>
 <p>昨天登上gitbook网页版看了一下，多了一个导出pdf的功能，试用了一下，真香。生成的pdf和网页显示一模一样，只是没有书签导航页。<br>
 不过这个功能是business feature, 39美金一个月，土豪专享。<br>
 现在每个账号可以试用14天。</p>
+]]></content>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[Gitbook踩坑记录I]]></title>
+        <id>http://www.liuchaos.cn/Blog/post/gitbook-cai-keng-ji-lu-i/</id>
+        <link href="http://www.liuchaos.cn/Blog/post/gitbook-cai-keng-ji-lu-i/">
+        </link>
+        <updated>2020-04-06T02:34:33.000Z</updated>
+        <content type="html"><![CDATA[<p>疫情期间在家给学生上网课，学生没有教材，就寻思着给学生整理个学习笔记/指导材料之类的。于是算是正式上手了gitbook。</p>
+<p>对我而言，gitbook有几个好处：</p>
+<ul>
+<li>markdown写作，不用太在乎格式；</li>
+<li>支持latex数学公式，理工科比较方便；</li>
+<li>可以保存到github，误删可以方便找回，比较有安全感；</li>
+<li>可以生成静态网页，容易分享给学生；而且不用担心图片等储存空间的问题；其实就算不生成动态网页，github page也能直接访问markdown文档，只是没有css渲染；</li>
+</ul>
+<p>众所周知，因为某些原因，gitbook国内是无法登陆的。但是没关系，我用的组合是windows10+ gitbook editor + git，不用登陆gitbook官网。</p>
+<p>只需要在gitbook editor里的book &gt; Repository Settings 输入你的github仓库地址，就能在写了东西以后push到github，再到github对应仓库的settings &gt;GitHub Pages设置一下，就能通过静态网页访问自己写的内容了。</p>
+<p>本来故事就该结束了，但是我这样一个网络编程小白想试一下生成gitbook的静态网页和pdf，于是踩坑之路就开始了。</p>
+<h2 id="1-http与https">1、http与https</h2>
+<p>为了能在github pages页面显示latex公式，我直接在每个markdown文档里加入了一个 script脚本:</p>
+<pre><code class="language-html">&lt;script type=&quot;text/javascript&quot;
+src=&quot;http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML&quot;&gt;
+&lt;/script&gt;
+</code></pre>
+<p>于是gitbook的markdown文档不用转为静态页面，直接传到github，就能访问，而且latex写的公式可以正常显示。</p>
+<p>一日我修改了github对应仓库设置里settings &gt;GitHub Pages&gt;Enforce HTTPS后，学生反映文档里公式都不见了。后来检查发现，https页面是不能加载http资源的，包括脚本里面的资源。于是修改了脚本</p>
+<pre><code class="language-html">&lt;script type=&quot;text/javascript&quot;
+src=&quot;https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML&quot;&gt;
+&lt;/script&gt;
+
+</code></pre>
+<p>文档的公式又出现了。</p>
+<h2 id="2-bookjson">2、book.json</h2>
+<p>为了能生成gitbook那样的网页页面，就需要使用到gitbook cli，具体安装方式为：</p>
+<ul>
+<li>下载安装nodejs</li>
+<li>进入cmd命令控制台</li>
+<li>npm install gitbook-cli -g  命令安装gitbook cli</li>
+<li>gitbook build将所写的markdown转化为gitbook静态网页</li>
+<li></li>
+</ul>
+<p>结果发现网页是生成了，但是公式没了。查询以后发现，需要给gitbook安装插件，这就需要用到一个book.json配置。</p>
+<p>如果使用gitbook editor写东西，相应文件夹是没有这个文件的。需要自己创建一个book.json，但是只要这个文在文件夹里，下次使用gitbook editor时候就无法生成对应的目录，所以要记得下次使用gitbook editor写东西时候移走文件夹里的book.json。</p>
+<p>book.json可以配置很多东西，这里主要要说明的是他的公式插件。插件有mathjax和katex，相对而言推荐mathjax，因为它支持的latex语法比较全。于是在自己创建的book.json内加入：</p>
+<pre><code>{
+    &quot;plugins&quot;: [&quot;mathjax&quot;]
+}
+</code></pre>
+<p>还有其他很多信息可以在book.json中添加，比如作者、题目什么的。<br>
+添加完以后，在命令窗口输入:</p>
+<pre><code>gitbook install
+</code></pre>
+<p>就能安装插件，等mathjax安装完毕。理论上，运行</p>
+<pre><code>gitbook build
+gitbook serve
+</code></pre>
+<p>就能生成网页，这时候出现一个提示错误：</p>
+<h2 id="3-error-enoent-no-such-file-or-directory">3、Error: ENOENT: no such file or directory</h2>
+<pre><code>Error: ENOENT: no such file or directory, stat 'F:gitbookgitbook-plugin-fontsettingsfontsettings.js'
+</code></pre>
+<p>可是我查了一下，这个gitbook-plugin-fontsettingsfontsettings.js文件是好好呆在文件夹里的。于是查了一下，网上说关闭杀毒软件，可我电脑是裸奔的。后来找到一个解决办法<br>
+在</p>
+<pre><code>C:\Users\Administrator\.gitbook\versions\3.2.3\lib\output\website
+</code></pre>
+<p>中找到<strong>copyPluginAssets.js</strong>，打开将它地112行的 confirm: true 为 confirm: false<br>
+这个问题就解决了。<br>
+接下来</p>
+<pre><code>gitbook serve
+</code></pre>
+<p>就能生成静态网页了，网页存在markdown所在文件夹从_book内。同时，通过<br>
+http://localhost:4000/<br>
+就能在自己电脑上访问自己的网页了。</p>
 ]]></content>
     </entry>
 </feed>
