@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+    <id>http://www.liuchaos.cn/Blog/</id>
+    <title>ChaosTech</title>
+    <updated>2020-04-06T02:34:21.964Z</updated>
+    <generator>https://github.com/jpmonette/feed</generator>
+    <link rel="alternate" href="http://www.liuchaos.cn/Blog/"/>
+    <link rel="self" href="http://www.liuchaos.cn/Blog/atom.xml"/>
+    <subtitle>一枚小学生的作文</subtitle>
+    <logo>http://www.liuchaos.cn/Blog/images/avatar.png</logo>
+    <icon>http://www.liuchaos.cn/Blog/favicon.ico</icon>
+    <rights>All rights reserved 2020, ChaosTech</rights>
+</feed>
